@@ -51,8 +51,7 @@ async def health_check():
         "status": "healthy",
         "message": "Maypo AI Consulting Platform is running",
         "version": "1.0.0",
-        "analytics": "Vercel Web Analytics enabled",
-        "speed_insights": "Vercel Speed Insights enabled"
+        "analytics": "Vercel Web Analytics enabled"
     }
 
 
