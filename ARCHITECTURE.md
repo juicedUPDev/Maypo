@@ -5,55 +5,100 @@
 This document provides a visual overview of the Maypo system architecture and its components.
 
 ```mermaid
-graph TB
-    subgraph Client["Client Layer"]
-        WEB["Web Browser"]
-        MOBILE["Mobile App"]
-    end
+graph LR
+  %% Clients
+  subgraph Client["Client Layer"]
+    WEB["Web Browser\n(HTTPS)"]
+    MOBILE["Mobile App\n(HTTPS)"]
+  end
 
-    subgraph API["API Layer"]
-        GATEWAY["API Gateway"]
-        AUTH["Authentication Service"]
-    end
+  %% API
+  subgraph API["API Layer"]
+    GATEWAY["API Gateway\n(Rate limiting, routing)"]
+    AUTH["Authentication Service\n(OAuth / JWT)"]
+  end
 
-    subgraph Services["Business Logic Layer"]
-        USER["User Service"]
-        CONTENT["Content Service"]
-        PROCESS["Processing Service"]
-    end
+  %% Services
+  subgraph Services["Business Logic Layer"]
+    USER["User Service\n(REST / gRPC)"]
+    CONTENT["Content Service\n(REST / gRPC)"]
+    PROCESS["Processing Service\n(Workers / Jobs)"]
+  end
 
-    subgraph Data["Data Layer"]
-        DB[(Database)]
-        CACHE["Cache Layer"]
-    end
+  %% Data & Cache
+  subgraph Data["Data & Cache"]
+    DB[(Database)]
+    CACHE["Cache (Redis)"]
+  end
 
-    subgraph External["External Services"]
-        STORAGE["Cloud Storage"]
-        QUEUE["Message Queue"]
-    end
+  %% Async & External
+  subgraph External["Async & External"]
+    QUEUE[[Message Queue]]
+    STORAGE["Cloud Storage (S3)"]
+    EXTSVC["Third‑party APIs"]
+  end
 
-    WEB -->|HTTP/HTTPS| GATEWAY
-    MOBILE -->|HTTP/HTTPS| GATEWAY
-    GATEWAY --> AUTH
-    GATEWAY --> USER
-    GATEWAY --> CONTENT
-    GATEWAY --> PROCESS
-    
-    USER --> DB
-    CONTENT --> DB
-    PROCESS --> DB
-    
-    USER --> CACHE
-    CONTENT --> CACHE
-    
-    PROCESS --> QUEUE
-    PROCESS --> STORAGE
-    
-    style Client fill:#e1f5ff
-    style API fill:#fff3e0
-    style Services fill:#f3e5f5
-    style Data fill:#e8f5e9
-    style External fill:#fce4ec
+  %% Infra / Observability
+  subgraph Infra["Infra & Ops"]
+    MON["Observability\n(Tracing / Logs / Metrics)"]
+    CD["CI/CD"]
+    ASG["Autoscaling\n(K8s / HPA)"]
+  end
+
+  %% Client -> API
+  WEB -->|HTTPS| GATEWAY
+  MOBILE -->|HTTPS| GATEWAY
+
+  %% Gateway routing & auth
+  GATEWAY -->|auth request| AUTH
+  GATEWAY -->|route| USER
+  GATEWAY -->|route| CONTENT
+  GATEWAY -->|route| PROCESS
+
+  %% Services -> Data
+  USER -->|read / write| DB
+  CONTENT -->|read / write| DB
+  PROCESS -->|read / write| DB
+
+  USER -->|cache read / write| CACHE
+  CONTENT -->|cache read / write| CACHE
+
+  %% Async flows (explicit)
+  PROCESS -->|enqueue (async)| QUEUE
+  QUEUE -->>|worker pull| PROCESS
+  PROCESS -->|store media| STORAGE
+  PROCESS -->|call| EXTSVC
+
+  %% Observability & infra links
+  GATEWAY --> MON
+  USER --> MON
+  CONTENT --> MON
+  PROCESS --> MON
+  DB --> MON
+  QUEUE --> MON
+
+  GATEWAY --> ASG
+  PROCESS --> ASG
+
+  CD --> GATEWAY
+  CD --> USER
+  CD --> CONTENT
+  CD --> PROCESS
+
+  %% Visual styles
+  classDef client fill:#e1f5ff,stroke:#036,stroke-width:1px;
+  classDef api fill:#fff3e0,stroke:#d97706,stroke-width:1px;
+  classDef services fill:#f3e5f5,stroke:#6b21a8,stroke-width:1px;
+  classDef data fill:#e8f5e9,stroke:#166534,stroke-width:1px;
+  classDef external fill:#fce4ec,stroke:#be123c,stroke-width:1px;
+  classDef infra fill:#eef2ff,stroke:#2563eb,stroke-width:1px;
+
+  class WEB,MOBILE client;
+  class GATEWAY,AUTH api;
+  class USER,CONTENT,PROCESS services;
+  class DB,CACHE data;
+  class QUEUE,STORAGE,EXTSVC external;
+  class MON,CD,ASG infra;
 ```
 
 ## Component Descriptions
