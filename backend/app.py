@@ -74,6 +74,12 @@ try:
 except ImportError as e:
     print(f"Warning: Could not import analytics router: {e}")
 
+try:
+    from routes.chat import router as chat_router
+    app.include_router(chat_router)
+except ImportError as e:
+    print(f"Warning: Could not import chat router: {e}")
+
 
 # Export handler for Vercel serverless functions
 handler = Mangum(app)
