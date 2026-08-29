@@ -64,25 +64,37 @@ async def ads_txt():
 
 # Include routes
 try:
-    from routes.prompts import router as prompts_router
+    try:
+        from routes.prompts import router as prompts_router
+    except ImportError:
+        from backend.routes.prompts import router as prompts_router
     app.include_router(prompts_router)
 except ImportError as e:
     print(f"Warning: Could not import prompts router: {e}")
 
 try:
-    from routes.consulting import router as consulting_router
+    try:
+        from routes.consulting import router as consulting_router
+    except ImportError:
+        from backend.routes.consulting import router as consulting_router
     app.include_router(consulting_router)
 except ImportError as e:
     print(f"Warning: Could not import consulting router: {e}")
 
 try:
-    from routes.analytics import router as analytics_router
+    try:
+        from routes.analytics import router as analytics_router
+    except ImportError:
+        from backend.routes.analytics import router as analytics_router
     app.include_router(analytics_router)
 except ImportError as e:
     print(f"Warning: Could not import analytics router: {e}")
 
 try:
-    from routes.v1 import v1_router
+    try:
+        from routes.v1 import v1_router
+    except ImportError:
+        from backend.routes.v1 import v1_router
     app.include_router(v1_router)
 except ImportError as e:
     print(f"Warning: Could not import v1 router: {e}")
