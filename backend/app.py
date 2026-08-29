@@ -51,8 +51,15 @@ async def health_check():
         "status": "healthy",
         "message": "Maypo AI Consulting Platform is running",
         "version": "1.0.0",
-        "analytics": "Vercel Web Analytics enabled"
+        "analytics": "Vercel Web Analytics enabled",
+        "speed_insights": "Vercel Speed Insights enabled"
     }
+
+
+@app.get("/ads.txt")
+async def ads_txt():
+    """Serve Google AdSense ads.txt snippet if needed"""
+    return HTMLResponse("google.com, pub-7390267678780075, DIRECT, f08c47fec0942fa0", media_type="text/plain")
 
 
 # Include routes
@@ -73,6 +80,12 @@ try:
     app.include_router(analytics_router)
 except ImportError as e:
     print(f"Warning: Could not import analytics router: {e}")
+
+try:
+    from routes.v1 import v1_router
+    app.include_router(v1_router)
+except ImportError as e:
+    print(f"Warning: Could not import v1 router: {e}")
 
 
 # Export handler for Vercel serverless functions
