@@ -6,7 +6,32 @@
       "use": "@vercel/python@3.1.0"
     }
   ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.ejesse.com"
+        }
+      ],
+      "destination": "https://ejesse.com/$1",
+      "permanent": true
+    }
+  ],
   "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "backend/app.py"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/app.py"
+    },
+    {
+      "src": "/health",
+      "dest": "backend/app.py"
+    },
     {
       "src": "/(.*)",
       "dest": "backend/app.py"

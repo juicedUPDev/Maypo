@@ -51,30 +51,53 @@ async def health_check():
         "status": "healthy",
         "message": "Maypo AI Consulting Platform is running",
         "version": "1.0.0",
-        "analytics": "Vercel Web Analytics enabled"
+        "analytics": "Vercel Web Analytics enabled",
+        "speed_insights": "Vercel Speed Insights enabled"
     }
+
+
+@app.get("/ads.txt")
+async def ads_txt():
+    """Serve Google AdSense ads.txt snippet if needed"""
+    return HTMLResponse("google.com, pub-7390267678780075, DIRECT, f08c47fec0942fa0", media_type="text/plain")
 
 
 # Include routes
 try:
-    from routes.prompts import router as prompts_router
+    try:
+        from routes.prompts import router as prompts_router
+    except ImportError:
+        from backend.routes.prompts import router as prompts_router
     app.include_router(prompts_router)
 except ImportError as e:
     print(f"Warning: Could not import prompts router: {e}")
 
 try:
-    from routes.consulting import router as consulting_router
+    try:
+        from routes.consulting import router as consulting_router
+    except ImportError:
+        from backend.routes.consulting import router as consulting_router
     app.include_router(consulting_router)
 except ImportError as e:
     print(f"Warning: Could not import consulting router: {e}")
 
 try:
-    from routes.analytics import router as analytics_router
+    try:
+        from routes.analytics import router as analytics_router
+    except ImportError:
+        from backend.routes.analytics import router as analytics_router
     app.include_router(analytics_router)
 except ImportError as e:
     print(f"Warning: Could not import analytics router: {e}")
 
 try:
+    try:
+        from routes.v1 import v1_router
+    except ImportError:
+        from backend.routes.v1 import v1_router
+    app.include_router(v1_router)
+except ImportError as e:
+    print(f"Warning: Could not import v1 router: {e}")
     from routes.chat import router as chat_router
     app.include_router(chat_router)
 except ImportError as e:
