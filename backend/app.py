@@ -98,6 +98,10 @@ try:
     app.include_router(v1_router)
 except ImportError as e:
     print(f"Warning: Could not import v1 router: {e}")
+    from routes.chat import router as chat_router
+    app.include_router(chat_router)
+except ImportError as e:
+    print(f"Warning: Could not import chat router: {e}")
 
 
 # Export handler for Vercel serverless functions
